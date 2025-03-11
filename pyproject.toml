@@ -9,9 +9,13 @@ dependencies = [
     "browser-use>=0.1.4",
     "ruff>=0.9.10",
     "langchain-openai>=0.3.1",
-    "dotenv>=0.9.9",
+    "python-dotenv>=0.9.9",
     "playwright>=1.50.0",
 ]
 
 [project.scripts]
-browser-mcp = "__main__:main"
+browser-mcp = "browser_mcp.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
