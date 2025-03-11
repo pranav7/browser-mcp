@@ -46,7 +46,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/browser-use-mcp
+      url: https://pypi.org/p/browser-mcp
 
     steps:
       - name: Retrieve release distributions

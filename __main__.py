@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Entry point for the browser-use-mcp package.
-This allows the package to be run directly with `uvx browser-use-mcp`.
+Entry point for the browser-mcp package.
+This allows the package to be run directly with `uvx browser-mcp`.
 """
 
 from server import mcp
