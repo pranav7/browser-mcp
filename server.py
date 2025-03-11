@@ -4,6 +4,7 @@ from browser_use import Agent
 from dotenv import load_dotenv
 import logging
 import sys
+from typing import Literal
 
 # Configure logging to go to stderr instead of stdout
 logging.basicConfig(
@@ -32,3 +33,7 @@ async def perform_task_with_browser(task: str) -> str:
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
+else:
+    # When imported as a module (e.g., via uvx), this function will be called
+    def run(transport: Literal["stdio", "sse"] = "stdio"):
+        mcp.run(transport=transport)
