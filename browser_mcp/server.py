@@ -19,10 +19,31 @@ mcp = FastMCP("browser-use")
 
 
 @mcp.tool()
-async def perform_task_with_browser(task: str) -> str:
+async def search_web(task: str, model: str = "gpt-4o-mini") -> str:
+    """Search the web for information relevant to the task."""
+    """Use this tool for basic web searches."""
     agent = Agent(
         task=task,
-        llm=ChatOpenAI(model="gpt-4o-mini"),
+        llm=ChatOpenAI(model=model),
+    )
+    history = await agent.run()
+    return (
+        history.final_result()
+        or "The task was completed but the result is not available."
+    )
+
+
+@mcp.tool()
+async def search_web_with_planning(
+    task: str, base_model: str = "gpt-4o-mini", planning_model: str = "gpt-4o-mini"
+) -> str:
+    """Search the web for information relevant to the task."""
+    """Use this tool for complex web searches that require planning."""
+    agent = Agent(
+        task=task,
+        llm=ChatOpenAI(model=base_model),
+        planner_llm=ChatOpenAI(model=planning_model),
+        planner_interval=10,
     )
     history = await agent.run()
     return (
@@ -34,7 +55,7 @@ async def perform_task_with_browser(task: str) -> str:
 if __name__ == "__main__":
     mcp.run(transport="stdio")
 else:
-    # When imported as a module (e.g., via uvx), this function will be called
+
     def run(
         transport: Literal["stdio", "sse"] = "stdio",
     ):
