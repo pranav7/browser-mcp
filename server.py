@@ -1,0 +1,34 @@
+from langchain_openai import ChatOpenAI
+from mcp.server.fastmcp import FastMCP
+from browser_use import Agent
+from dotenv import load_dotenv
+import logging
+import sys
+
+# Configure logging to go to stderr instead of stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] [%(levelname)s] %(message)s",
+    stream=sys.stderr,
+)
+
+load_dotenv()
+
+mcp = FastMCP("browser-use")
+
+
+@mcp.tool()
+async def perform_task_with_browser(task: str) -> str:
+    agent = Agent(
+        task=task,
+        llm=ChatOpenAI(model="gpt-4o-mini"),
+    )
+    history = await agent.run()
+    return (
+        history.final_result()
+        or "The task was completed but the result is not available."
+    )
+
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
