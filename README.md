@@ -44,17 +44,23 @@ OPENAI_API_KEY=your_api_key_here
 
 ### Running the MCP Server
 
-You can run the MCP server directly with Python:
+#### In Development Mode
+
+When working with the package in development mode, you can run it directly with Python:
 
 ```bash
-python -m browser_mcp
+python -m src
 ```
 
-Or if you have uv installed:
+#### In Production
+
+After installing the package from PyPI, you can run it with uvx:
 
 ```bash
 uvx browser-mcp
 ```
+
+The package is specifically designed to work with uvx, which allows for more efficient package loading and execution.
 
 ### Using as a Client
 
@@ -72,6 +78,24 @@ async def main():
     await client.close()
 ```
 
+### Programmatic Usage
+
+You can also use the package programmatically:
+
+```python
+# In development mode
+from src import run
+
+# In production (after installing the package)
+# from browser_mcp import run
+
+# Run the MCP server with stdio transport
+run(transport="stdio")
+
+# Or with SSE transport
+# run(transport="sse")
+```
+
 ## Available RPC Methods
 
 - `perform_task_with_browser(task: str)` - Performs a specified task using the browser-use Agent with GPT-4o-mini
@@ -85,6 +109,18 @@ Tests can be run with:
 ```bash
 python -m unittest discover
 ```
+
+You can also test the package functionality with:
+
+```bash
+python test_uvx.py
+```
+
+This script will:
+1. Test importing the package directly (development mode)
+2. Attempt to run it with uvx (production mode)
+
+Note: The uvx test may fail in development mode unless the package is published to PyPI. This is expected behavior.
 
 ### Publishing to PyPI
 

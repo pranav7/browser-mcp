@@ -9,14 +9,18 @@ dependencies = [
     "browser-use>=0.1.4",
     "ruff>=0.9.10",
     "langchain-openai>=0.3.1",
-    "python-dotenv>=0.9.9",
+    "python-dotenv>=1.0.1",
     "playwright>=1.50.0",
     "uv>=0.1.0",
 ]
 
 [project.scripts]
-browser-mcp = "browser_mcp.__main__:main"
+browser-mcp = "browser_mcp.server:run"
+
+[project.urls]
+"Homepage" = "https://github.com/pranav7/browser-mcp"
+"Bug Tracker" = "https://github.com/pranav7/browser-mcp/issues"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

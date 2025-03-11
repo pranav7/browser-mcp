@@ -4,8 +4,7 @@ from browser_use import Agent
 from dotenv import load_dotenv
 import logging
 import sys
-from typing import Literal, Optional
-import uv
+from typing import Literal
 
 # Configure logging to go to stderr instead of stdout
 logging.basicConfig(
@@ -36,8 +35,14 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 else:
     # When imported as a module (e.g., via uvx), this function will be called
-    def run(transport: Literal["stdio", "sse"] = "stdio", host: Optional[str] = None, port: Optional[int] = None):
-        if host and port:
-            uv.run(mcp, host=host, port=port)
-            return
+    def run(
+        transport: Literal["stdio", "sse"] = "stdio",
+    ):
+        """
+        Run the MCP server with the specified transport.
+        This function is called when the package is imported via uvx.
+
+        Args:
+            transport: The transport to use for communication. Either "stdio" or "sse".
+        """
         mcp.run(transport=transport)
