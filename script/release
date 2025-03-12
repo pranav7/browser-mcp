@@ -93,7 +93,7 @@ def main():
 
     # Push changes and tags to GitHub
     print("\nPushing changes and tags to GitHub...")
-    subprocess.run(["git", "push", "origin", "main", "--tags"], check=True)
+    subprocess.run(["git", "push", "origin", "master", "--tags"], check=True)
     print("Successfully pushed release to GitHub!")
 
 
