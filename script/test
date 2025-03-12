@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+# Get the directory of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get the root directory of the project
+ROOT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+# Activate virtual environment if it exists
+if [ -d "$ROOT_DIR/.venv" ]; then
+    source "$ROOT_DIR/.venv/bin/activate"
+fi
+
+# If a specific test file is provided, run only that test
+if [ "$1" != "" ]; then
+    if [ -f "$1" ]; then
+        # Run the specific test file
+        echo "Running test: $1"
+        python "$1"
+    else
+        # Try to find the test file in the tests directory
+        if [ -f "$ROOT_DIR/tests/$1" ]; then
+            echo "Running test: $ROOT_DIR/tests/$1"
+            python "$ROOT_DIR/tests/$1"
+        else
+            echo "Test file not found: $1"
+            exit 1
+        fi
+    fi
+else
+    # Run all tests in the tests directory
+    echo "Running all tests"
+    python -m unittest discover -s "$ROOT_DIR/tests" -p "test_*.py"
+fi

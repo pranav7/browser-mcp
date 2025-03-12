@@ -16,6 +16,14 @@ Or with uv (recommended):
 uv pip install browser-mcp
 ```
 
+After installation, you'll need to install Playwright's browser dependencies:
+
+```bash
+playwright install
+```
+
+Alternatively, you can use the `browser-mcp-run` command which will automatically install these dependencies if they're missing.
+
 ## Setup
 
 For development, clone the repository and install in development mode:
@@ -61,6 +69,16 @@ uvx browser-mcp
 ```
 
 The package is specifically designed to work with uvx, which allows for more efficient package loading and execution.
+
+#### With Automatic Dependency Check
+
+You can also use the `browser-mcp-run` command, which checks for and installs Playwright dependencies automatically before starting the server:
+
+```bash
+browser-mcp-run
+```
+
+This ensures that all required Playwright browsers are installed on your system.
 
 ### Using as a Client
 

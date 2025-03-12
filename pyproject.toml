@@ -12,10 +12,12 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "playwright>=1.50.0",
     "uv>=0.1.0",
+    "pytest>=7.4.0",
 ]
 
 [project.scripts]
 browser-mcp = "browser_mcp.server:run"
+browser-mcp-run = "__main__:main"
 
 [project.urls]
 "Homepage" = "https://github.com/pranav7/browser-mcp"
