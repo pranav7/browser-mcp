@@ -96,6 +96,22 @@ def main():
     subprocess.run(["git", "push", "origin", "master", "--tags"], check=True)
     print("Successfully pushed release to GitHub!")
 
+    # Create GitHub release
+    print("\nCreating GitHub release...")
+    subprocess.run(
+        [
+            "gh",
+            "release",
+            "create",
+            f"v{new_version}",
+            "--title",
+            f"v{new_version}",
+            "--generate-notes",
+        ],
+        check=True,
+    )
+    print("Successfully created GitHub release!")
+
 
 if __name__ == "__main__":
     main()
