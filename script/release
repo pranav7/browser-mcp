@@ -91,8 +91,10 @@ def main():
     subprocess.run(["git", "tag", f"v{new_version}"], check=True)
     print(f"Created git tag v{new_version}")
 
-    print("\nTo push the release, run:")
-    print("git push origin main --tags")
+    # Push changes and tags to GitHub
+    print("\nPushing changes and tags to GitHub...")
+    subprocess.run(["git", "push", "origin", "main", "--tags"], check=True)
+    print("Successfully pushed release to GitHub!")
 
 
 if __name__ == "__main__":
