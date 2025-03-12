@@ -2,7 +2,6 @@
 Main entry point for browser-mcp that checks dependencies before starting the server
 """
 
-import subprocess
 import sys
 import logging
 
@@ -13,7 +12,8 @@ from browser_mcp.check_playwright import check_playwright_browsers
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(name)s] [%(levelname)s] %(message)s",
-    stream=sys.stderr,
+    filename="browser-mcp.log",
+    filemode="a",
 )
 logger = logging.getLogger("browser-mcp")
 
