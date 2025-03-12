@@ -49,7 +49,7 @@ OPENAI_API_KEY=your_api_key_here
 When working with the package in development mode, you can run it directly with Python:
 
 ```bash
-python -m src
+mcp dev browser_mcp/server.py
 ```
 
 #### In Production
@@ -98,7 +98,8 @@ run(transport="stdio")
 
 ## Available RPC Methods
 
-- `perform_task_with_browser(task: str)` - Performs a specified task using the browser-use Agent with GPT-4o-mini
+- `search_web(task: str, model: str = "gpt-4o-mini")` - Performs basic web searches using browser-use Agent. The `model` parameter is optional and defaults to "gpt-4o-mini".
+- `search_web_with_planning(task: str, base_model: str = "gpt-4o-mini", planning_model: str = "o3-mini")` - Performs complex web searches that require planning. Uses a planner LLM for better task decomposition. Both `base_model` and `planning_model` parameters are optional with their respective defaults.
 
 ## Development
 
