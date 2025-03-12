@@ -30,20 +30,31 @@ def check_playwright_installed():
 
 
 def install_playwright_browsers():
-    """Install playwright browsers"""
-    logger.info("Installing playwright browsers...")
+    """Install Chromium browser using the Python API"""
+    logger.info("Installing Chromium browser...")
     try:
-        result = subprocess.run(
-            ["playwright", "install"], capture_output=True, text=True, check=False
-        )
-        if result.returncode != 0:
-            logger.error(f"Failed to install playwright browsers: {result.stderr}")
-            return False
+        from playwright.sync_api import sync_playwright
+        import sys
+        import subprocess
 
-        logger.info("Playwright browsers installed successfully.")
+        # Install only Chromium browser
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"], check=True
+        )
+
+        # Verify installation by attempting to create a playwright instance
+        with sync_playwright() as p:
+            try:
+                browser = p.chromium.launch()
+                browser.close()
+            except Exception as e:
+                logger.error(f"Failed to verify Chromium installation: {e}")
+                return False
+
+        logger.info("Chromium browser installed and verified successfully.")
         return True
     except Exception as e:
-        logger.error(f"Error installing playwright browsers: {e}")
+        logger.error(f"Error installing Chromium browser: {e}")
         return False
 
 
