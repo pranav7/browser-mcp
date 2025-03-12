@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+import argparse
+import re
+import subprocess
+from pathlib import Path
+from enum import Enum, auto
+
+
+class BumpType(Enum):
+    PATCH = auto()
+    MINOR = auto()
+    MAJOR = auto()
+
+
+def get_current_version():
+    pyproject_path = Path("pyproject.toml")
+    content = pyproject_path.read_text()
+    version_match = re.search(r'version\s*=\s*"([^"]+)"', content)
+    if not version_match:
+        raise ValueError("Could not find version in pyproject.toml")
+    return version_match.group(1)
+
+
+def bump_version(version: str, bump_type: BumpType) -> str:
+    major, minor, patch = map(int, version.split("."))
+
+    if bump_type == BumpType.MAJOR:
+        return f"{major + 1}.0.0"
+    elif bump_type == BumpType.MINOR:
+        return f"{major}.{minor + 1}.0"
+    else:  # PATCH
+        return f"{major}.{minor}.{patch + 1}"
+
+
+def update_version(new_version: str):
+    pyproject_path = Path("pyproject.toml")
+    content = pyproject_path.read_text()
+    updated_content = re.sub(r'(version\s*=\s*)"[^"]+"', f'\\1"{new_version}"', content)
+    pyproject_path.write_text(updated_content)
+
+
+def update_uv_lock():
+    print("Updating uv.lock...")
+    subprocess.run(["uv", "pip", "install", "."], check=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Release script for browser-mcp",
+        epilog="Default behavior is to bump the patch version (X.Y.Z -> X.Y.Z+1)",
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--major",
+        action="store_true",
+        help="Perform a major version bump (X.Y.Z -> X+1.0.0)",
+    )
+    group.add_argument(
+        "--minor",
+        action="store_true",
+        help="Perform a minor version bump (X.Y.Z -> X.Y+1.0)",
+    )
+    args = parser.parse_args()
+
+    # Determine bump type
+    if args.major:
+        bump_type = BumpType.MAJOR
+    elif args.minor:
+        bump_type = BumpType.MINOR
+    else:
+        bump_type = BumpType.PATCH
+
+    # Get current version
+    current_version = get_current_version()
+    print(f"Current version: {current_version}")
+
+    # Bump version
+    new_version = bump_version(current_version, bump_type)
+    print(f"New version will be: {new_version}")
+
+    # Update pyproject.toml
+    update_version(new_version)
+    print("Updated pyproject.toml")
+
+    # Update uv.lock
+    update_uv_lock()
+
+    # Git commands
+    subprocess.run(["git", "add", "pyproject.toml", "uv.lock"], check=True)
+    subprocess.run(["git", "commit", "-m", f"Release v{new_version}"], check=True)
+    subprocess.run(["git", "tag", f"v{new_version}"], check=True)
+    print(f"Created git tag v{new_version}")
+
+    print("\nTo push the release, run:")
+    print("git push origin main --tags")
+
+
+if __name__ == "__main__":
+    main()
