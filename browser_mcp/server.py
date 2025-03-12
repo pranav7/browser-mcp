@@ -35,7 +35,7 @@ async def search_web(task: str, model: str = "gpt-4o-mini") -> str:
 
 @mcp.tool()
 async def search_web_with_planning(
-    task: str, base_model: str = "gpt-4o-mini", planning_model: str = "gpt-4o-mini"
+    task: str, base_model: str = "gpt-4o-mini", planning_model: str = "o3-mini"
 ) -> str:
     """Search the web for information relevant to the task."""
     """Use this tool for complex web searches that require planning."""
