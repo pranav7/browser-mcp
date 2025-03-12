@@ -4,43 +4,14 @@ from browser_use import Agent
 from dotenv import load_dotenv
 import logging
 from typing import Literal
-import os
 
-
-# Create a null handler that suppresses all output
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-
-# Configure root logger to suppress all output
-root_logger = logging.getLogger()
-root_logger.addHandler(NullHandler())
-root_logger.setLevel(logging.CRITICAL)  # Only show critical errors
-
-# Configure our app's logging to go to file
+# Get the configured logger from the main module
 app_logger = logging.getLogger("browser-mcp")
 
-# Create logs directory if it doesn't exist
-log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, "browser-mcp.log")
-
-file_handler = logging.FileHandler(log_file, mode="a")
-file_handler.setFormatter(
-    logging.Formatter("%(asctime)s [%(name)s] [%(levelname)s] %(message)s")
-)
-app_logger.addHandler(file_handler)
-app_logger.setLevel(logging.INFO)
-
-# Suppress Playwright's logging
-os.environ["PLAYWRIGHT_BROWSER_PATH"] = ""  # Suppress browser download messages
-os.environ["PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD"] = "1"  # Skip automatic downloads
-os.environ["DEBUG"] = ""  # Disable debug logging
-os.environ["PWDEBUG"] = "0"  # Disable debug mode
-
+# Load environment variables
 load_dotenv()
 
+# Configure the MCP server
 mcp = FastMCP("browser-use")
 
 
@@ -53,16 +24,19 @@ async def search_web(task: str, model: str = "gpt-4o-mini") -> str:
         task: The task to complete.
         model: The OpenAI model to use for the LLM (default: gpt-4o-mini)
     """
+    app_logger.info(f"Starting web search task: {task}")
     agent = Agent(
         task=task,
         llm=ChatOpenAI(model=model),
         save_conversation_path="logs/conversation",
     )
     history = await agent.run()
-    return (
+    result = (
         history.final_result()
         or "The task was completed but the result is not available."
     )
+    app_logger.info("Completed web search task")
+    return result
 
 
 @mcp.tool()
@@ -77,6 +51,7 @@ async def search_web_with_planning(
         base_model: The OpenAI model to use for the base LLM (default: gpt-4o-mini)
         planning_model: The OpenAI model to use for the planning LLM (default: o3-mini)
     """
+    app_logger.info(f"Starting web search with planning task: {task}")
     agent = Agent(
         task=task,
         llm=ChatOpenAI(model=base_model),
@@ -85,13 +60,16 @@ async def search_web_with_planning(
         save_conversation_path="logs/conversation",
     )
     history = await agent.run()
-    return (
+    result = (
         history.final_result()
         or "The task was completed but the result is not available."
     )
+    app_logger.info("Completed web search with planning task")
+    return result
 
 
 if __name__ == "__main__":
+    app_logger.info("Running MCP server directly...")
     mcp.run(transport="stdio")
 else:
 
@@ -102,4 +80,5 @@ else:
         Run the MCP server with the specified transport.
         This function is called when the package is imported via uvx.
         """
+        app_logger.info(f"Starting MCP server with {transport} transport...")
         mcp.run(transport=transport)
