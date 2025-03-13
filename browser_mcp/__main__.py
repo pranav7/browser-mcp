@@ -6,11 +6,50 @@ Main entry point for browser-mcp that checks dependencies before starting the se
 import sys
 import os
 import logging
+import logging.config
 import io
 
 # Now import the rest of our dependencies
 from browser_mcp.server import mcp
 from browser_mcp.check_playwright import check_playwright_browsers
+
+# Configure logging before any imports
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "standard": {
+                "format": "%(asctime)s [%(name)s] [%(levelname)s] %(message)s"
+            },
+        },
+        "handlers": {
+            "file": {
+                "class": "logging.FileHandler",
+                "filename": "logs/browser-mcp.log",
+                "mode": "a",
+                "formatter": "standard",
+            }
+        },
+        "loggers": {
+            "": {  # Root logger
+                "handlers": ["file"],
+                "level": "WARNING",
+                "propagate": True,
+            },
+            "browser_use": {
+                "handlers": ["file"],
+                "level": "WARNING",
+                "propagate": False,
+            },
+        },
+    }
+)
+
+# Set environment variables before any other imports
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+os.environ["BROWSER_USE_LOG_LEVEL"] = "WARNING"  # Add this line to suppress INFO logs
+
 
 os.environ["ANONYMIZED_TELEMETRY"] = "false"
 
@@ -108,7 +147,7 @@ for logger_name in [
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
     logger.addHandler(file_handler)
     logger.propagate = False  # Don't propagate to parent loggers
 
