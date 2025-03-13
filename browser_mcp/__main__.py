@@ -8,10 +8,16 @@ import os
 import logging
 import logging.config
 import io
+from pathlib import Path
 
 # Now import the rest of our dependencies
 from browser_mcp.server import mcp
 from browser_mcp.check_playwright import check_playwright_browsers
+
+# Set up logs directory in user's home directory
+LOG_DIR = os.path.join(str(Path.home()), ".browser-mcp", "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, "browser-mcp.log")
 
 # Configure logging before any imports
 logging.config.dictConfig(
@@ -26,7 +32,7 @@ logging.config.dictConfig(
         "handlers": {
             "file": {
                 "class": "logging.FileHandler",
-                "filename": "logs/browser-mcp.log",
+                "filename": LOG_FILE,
                 "mode": "a",
                 "formatter": "standard",
             }
@@ -55,8 +61,7 @@ os.environ["ANONYMIZED_TELEMETRY"] = "false"
 
 # Set up stdout redirection immediately, before any other imports
 # Create a minimal file handler for early logging
-os.makedirs("logs", exist_ok=True)
-early_handler = logging.FileHandler("logs/browser-mcp.log", mode="a")
+early_handler = logging.FileHandler(LOG_FILE, mode="a")
 early_handler.setFormatter(
     logging.Formatter("%(asctime)s [%(name)s] [%(levelname)s] %(message)s")
 )
@@ -112,13 +117,8 @@ root_logger.setLevel(logging.CRITICAL)  # Only show critical errors
 for handler in root_logger.handlers[:]:
     root_logger.removeHandler(handler)
 
-# Create logs directory if it doesn't exist
-log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, "browser-mcp.log")
-
 # Set up file handler for all loggers
-file_handler = logging.FileHandler(log_file, mode="a")
+file_handler = logging.FileHandler(LOG_FILE, mode="a")
 file_handler.setFormatter(
     logging.Formatter("%(asctime)s [%(name)s] [%(levelname)s] %(message)s")
 )
