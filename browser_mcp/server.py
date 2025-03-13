@@ -2,17 +2,13 @@ from langchain_openai import ChatOpenAI
 from mcp.server.fastmcp import FastMCP
 from browser_use import Agent
 from dotenv import load_dotenv
-import logging
+import os
 from typing import Literal
 
-# Get the configured logger from the main module
-app_logger = logging.getLogger("browser-mcp")
-
-# Load environment variables
 load_dotenv()
 
-# Configure the MCP server
-mcp = FastMCP("browser-use")
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+mcp = FastMCP("browser-mcp")
 
 
 @mcp.tool()
@@ -24,18 +20,15 @@ async def search_web(task: str, model: str = "gpt-4o-mini") -> str:
         task: The task to complete.
         model: The OpenAI model to use for the LLM (default: gpt-4o-mini)
     """
-    app_logger.info(f"Starting web search task: {task}")
     agent = Agent(
         task=task,
         llm=ChatOpenAI(model=model),
-        save_conversation_path="logs/conversation",
     )
     history = await agent.run()
     result = (
         history.final_result()
         or "The task was completed but the result is not available."
     )
-    app_logger.info("Completed web search task")
     return result
 
 
@@ -51,25 +44,21 @@ async def search_web_with_planning(
         base_model: The OpenAI model to use for the base LLM (default: gpt-4o-mini)
         planning_model: The OpenAI model to use for the planning LLM (default: o3-mini)
     """
-    app_logger.info(f"Starting web search with planning task: {task}")
     agent = Agent(
         task=task,
         llm=ChatOpenAI(model=base_model),
         planner_llm=ChatOpenAI(model=planning_model),
         planner_interval=10,
-        save_conversation_path="logs/conversation",
     )
     history = await agent.run()
     result = (
         history.final_result()
         or "The task was completed but the result is not available."
     )
-    app_logger.info("Completed web search with planning task")
     return result
 
 
 if __name__ == "__main__":
-    app_logger.info("Running MCP server directly...")
     mcp.run(transport="stdio")
 else:
 
@@ -80,5 +69,4 @@ else:
         Run the MCP server with the specified transport.
         This function is called when the package is imported via uvx.
         """
-        app_logger.info(f"Starting MCP server with {transport} transport...")
         mcp.run(transport=transport)

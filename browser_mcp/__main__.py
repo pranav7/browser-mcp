@@ -7,6 +7,12 @@ import sys
 import os
 import logging
 
+# Now import the rest of our dependencies
+from browser_mcp.server import run as server_run, mcp
+from browser_mcp.check_playwright import check_playwright_browsers
+
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+
 # Set up stdout redirection immediately, before any other imports
 # Create a minimal file handler for early logging
 os.makedirs("logs", exist_ok=True)
@@ -34,10 +40,6 @@ class StdoutSuppressor:
 
 # Replace stdout with our suppressor before any other imports
 sys.stdout = StdoutSuppressor()
-
-# Now import the rest of our dependencies
-from browser_mcp.server import run as server_run, mcp
-from browser_mcp.check_playwright import check_playwright_browsers
 
 # Suppress Playwright's logging immediately
 os.environ["PLAYWRIGHT_BROWSER_PATH"] = ""  # Suppress browser download messages
@@ -172,8 +174,6 @@ def main():
             )
             sys.exit(1)
 
-    # Run the server
-    app_logger.info("Starting MCP server...")
     server_run()
 
 
