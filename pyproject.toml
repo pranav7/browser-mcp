@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-browser-mcp = "__main__:main"
+browser-mcp = "browser_mcp.__main__:main"
 
 [project.urls]
 "Homepage" = "https://github.com/pranav7/browser-mcp"
