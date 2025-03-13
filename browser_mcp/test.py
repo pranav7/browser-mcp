@@ -10,6 +10,8 @@ async def test():
     result = await search_web("What is the main headline on the New York Times today?")
     print(f"Result: {result}")
 
+
+async def test_with_planning():
     result = await search_web_with_planning(
         "How far is mars from earth in kilometers?",
         base_model="gpt-4o-mini",
@@ -20,3 +22,4 @@ async def test():
 
 if __name__ == "__main__":
     asyncio.run(test())
+    asyncio.run(test_with_planning())

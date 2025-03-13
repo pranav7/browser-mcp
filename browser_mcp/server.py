@@ -3,7 +3,6 @@ from mcp.server.fastmcp import FastMCP
 from browser_use import Agent
 from dotenv import load_dotenv
 import os
-from typing import Literal
 
 load_dotenv()
 
@@ -56,17 +55,3 @@ async def search_web_with_planning(
         or "The task was completed but the result is not available."
     )
     return result
-
-
-if __name__ == "__main__":
-    mcp.run(transport="stdio")
-else:
-
-    def run(
-        transport: Literal["stdio", "sse"] = "stdio",
-    ):
-        """
-        Run the MCP server with the specified transport.
-        This function is called when the package is imported via uvx.
-        """
-        mcp.run(transport=transport)

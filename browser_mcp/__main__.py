@@ -6,9 +6,10 @@ Main entry point for browser-mcp that checks dependencies before starting the se
 import sys
 import os
 import logging
+import io
 
 # Now import the rest of our dependencies
-from browser_mcp.server import run as server_run, mcp
+from browser_mcp.server import mcp
 from browser_mcp.check_playwright import check_playwright_browsers
 
 os.environ["ANONYMIZED_TELEMETRY"] = "false"
@@ -29,15 +30,31 @@ early_logger.propagate = False
 
 
 class StdoutSuppressor:
+    def __init__(self):
+        self.buffer = io.BytesIO()
+        self._original_stdout = sys.stdout
+
     def write(self, message):
         if message and message.strip():  # If the message isn't just whitespace
             early_logger.debug(f"Suppressed stdout: {message.strip()}")
+        if isinstance(message, str):
+            self.buffer.write(message.encode("utf-8"))
+        else:
+            self.buffer.write(message)
         return len(message) if message else 0
 
     def flush(self):
-        pass
+        self.buffer.flush()
+
+    def fileno(self):
+        return self._original_stdout.fileno()
+
+    def isatty(self):
+        return self._original_stdout.isatty()
 
 
+# Save the original stdout before replacing it
+original_stdout = sys.stdout
 # Replace stdout with our suppressor before any other imports
 sys.stdout = StdoutSuppressor()
 
@@ -136,29 +153,14 @@ def install_playwright_browsers():
         return False
 
 
-def create_app():
-    """
-    Create and configure the FastAPI application.
-    This is the function that uvicorn will import and use.
-    """
-    # Ensure dependencies are installed when creating the app
-    if not check_playwright_installed():
-        install_playwright_browsers()
-        if not check_playwright_installed():
-            app_logger.error("Failed to install required dependencies.")
-            sys.exit(1)
-
-    return mcp
-
-
 def main():
     """
     Main entry point for browser-mcp.
     This is used when running the package directly.
     """
-    app_logger.info("Initializing browser-mcp...")
+    # Restore original stdout before running MCP
+    sys.stdout = original_stdout
 
-    # Check if playwright is installed with browsers
     if not check_playwright_installed():
         app_logger.info("Attempting to install Playwright browsers...")
         if not install_playwright_browsers():
@@ -167,18 +169,14 @@ def main():
             )
             sys.exit(1)
 
-        # Verify installation was successful
         if not check_playwright_installed():
             app_logger.error(
                 "Playwright browsers installation verification failed. Please check your installation."
             )
             sys.exit(1)
 
-    server_run()
+    mcp.run(transport="stdio")
 
-
-# This allows both direct execution and uvicorn to work
-app = create_app()
 
 if __name__ == "__main__":
     main()
